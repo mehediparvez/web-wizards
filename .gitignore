@@ -8,3 +8,5 @@ sleep.py
 .env.development
 .env.production
 test
+.vscode
+.vscode/settings.json
