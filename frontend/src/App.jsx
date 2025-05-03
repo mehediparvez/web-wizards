@@ -150,6 +150,14 @@ const router = createBrowserRouter([
     } />,
   },
   {
+    path: "/google-popup-callback",
+    element: (
+      <Suspense fallback={<PageLoading />}>
+        <GooglePopupCallback />
+      </Suspense>
+    ),
+  },
+  {
     path: "/dashboard",
     element: <PrivateRoute element={
       <Suspense fallback={<PageLoading />}>
