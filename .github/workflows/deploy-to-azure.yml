@@ -93,31 +93,11 @@ jobs:
           inlineScript: |
             echo "Updating OCR service container app with image tag: ${{ steps.set-image-tag.outputs.image_tag }}"
             
-            # Check if container app exists with better error handling
-            echo "Checking if OCR service container app exists..."
-            EXISTS=$(az containerapp show --name ocr-service --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --query name 2>/dev/null || echo "false")
-            echo "Container app exists check result: $EXISTS"
-            
-            if [ "$EXISTS" == "false" ]; then
-              echo "Creating new OCR service container app"
-              az containerapp create \
-                --name ocr-service \
-                --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-                --environment ${{ env.CONTAINER_ENV_NAME }} \
-                --image ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.OCR_SERVICE_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} \
-                --target-port 80 \
-                --ingress external \
-                --cpu 0.5 \
-                --memory 1.0Gi \
-                --min-replicas 1 \
-                --max-replicas 3 || echo "Error creating OCR service container app"
-            else
-              echo "Updating existing OCR service container app"
-              az containerapp update \
-                --name ocr-service \
-                --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-                --image ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.OCR_SERVICE_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} || echo "Error updating OCR service container app"
-            fi
+            # Update existing container app with new image
+            az containerapp update \
+              --name ocr-service \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --image ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.OCR_SERVICE_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} || echo "Error updating OCR service container app"
             
             echo "OCR service container app update completed successfully"
       
