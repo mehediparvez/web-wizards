@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - ci/cd-pipeline
+      - test
     paths:
       - 'frontend/**'
       - '.github/workflows/deploy.yml'
