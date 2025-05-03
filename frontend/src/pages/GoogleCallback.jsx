@@ -1,26 +1,66 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProcessGoogleCallbackMutation } from '../store/api/oauthApi';
 import LoadingScreen from '../components/common/LoadingScreen';
 import { AuthContext } from '../context/authContextDefinition';
+import { useContext } from 'react';
 
 /**
  * Component to handle Google OAuth callback
- * Extracts the code from the URL and processes it using oauthApi
  */
 const GoogleCallback = () => {
   const [status, setStatus] = useState('processing');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [processGoogleCallback] = useProcessGoogleCallbackMutation();
   const { loginWithGoogle } = useContext(AuthContext);
-  const codeProcessed = useRef(false); // Use ref to track if code has been processed
+  const codeProcessed = useRef(false);
+  const isPopup = useRef(window.opener && window.opener !== window); // Check if this is a popup window
+
+  // Close popup immediately if detected - even before useEffect runs
+  // This serves as a backup if the script in index.html didn't work
+  if (isPopup.current && window.opener) {
+    try {
+      // Extract code from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      
+      if (code) {
+        // Store in localStorage for main window
+        localStorage.setItem('google_auth_code', code);
+        if (state) {
+          localStorage.setItem('google_auth_state', state);
+        }
+        localStorage.setItem('google_auth_timestamp', Date.now().toString());
+      }
+      
+      // Close immediately
+      console.log('GoogleCallback component closing popup immediately');
+      window.close();
+    } catch (err) {
+      console.error('Error in immediate popup close logic:', err);
+      // Still try to close
+      window.close();
+    }
+  }
 
   useEffect(() => {
+    // Define a simple function to redirect to dashboard after successful login
+    const redirectToDashboard = () => {
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 1000);
+    };
+
     const processCallback = async () => {
       try {
         // Prevent double processing
         if (codeProcessed.current) {
+          return;
+        }
+
+        // Skip further processing if in popup - redundant check as a fallback
+        if (isPopup.current && window.opener) {
+          window.close();
           return;
         }
 
@@ -34,41 +74,46 @@ const GoogleCallback = () => {
           return;
         }
 
-        // Mark code as being processed
         codeProcessed.current = true;
-
-        console.log("Processing Google OAuth callback...");
-
-        // Get the current redirect URI (needed for OAuth verification)
+        
+        // Only process in main window
+        console.log("Main window processing OAuth callback");
+        
+        // Get the current redirect URI
         const redirectUri = `${window.location.origin}/google-callback`;
-        console.log("Using redirect URI:", redirectUri);
-
-        // Process the callback code using AuthContext
+        
+        // Process the callback
         await loginWithGoogle({
           code: code,
           redirectUri: redirectUri
         });
         
         setStatus('success');
-        
-        // Navigate to dashboard or intended destination
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 1500);
+        redirectToDashboard();
       } catch (err) {
         console.error("Google OAuth callback error:", err);
         setStatus('error');
         setError(err.data?.detail || err.message || 'Failed to process Google login');
         
-        // Navigate back to login after showing error
-        setTimeout(() => {
-          navigate('/login', { replace: true });
-        }, 3000);
+        // Navigate to login after error in main window
+        if (!isPopup.current) {
+          setTimeout(() => {
+            navigate('/login', { replace: true });
+          }, 3000);
+        }
       }
     };
 
-    processCallback();
+    // Don't run the effect in popup windows at all
+    if (!isPopup.current) {
+      processCallback();
+    }
   }, [navigate, loginWithGoogle]);
+
+  // Don't render anything in popup windows
+  if (isPopup.current) {
+    return null;
+  }
 
   // Component rendering based on status
   if (status === 'processing') {

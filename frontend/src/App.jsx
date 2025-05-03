@@ -15,6 +15,7 @@ import store, { persistor } from './store';
 const Login = lazy(() => import('./pages/Login'));
 const Registration = lazy(() => import('./pages/Registration'));
 const GoogleCallback = lazy(() => import('./pages/GoogleCallback'));
+const GooglePopupCallback = lazy(() => import('./pages/GooglePopupCallback'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Medication = lazy(() => import('./pages/Medication'));

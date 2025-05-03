@@ -17,19 +17,40 @@ export const oauthApi = apiService.injectEndpoints({
 
     // Initiate Google OAuth login process
     initiateGoogleLogin: builder.mutation({
-      query: (redirectUri = window.location.origin + '/google-callback') => ({
-        url: `users/google/login/?redirect_uri=${encodeURIComponent(redirectUri)}`,
-        method: 'GET',
-      }),
+      query: (redirectUri = window.location.origin + '/google-callback') => {
+        // Always use the registered callback URL that's configured in Google Cloud Console
+        return {
+          url: `users/google/login/?redirect_uri=${encodeURIComponent(redirectUri)}`,
+          method: 'GET',
+        };
+      },
       // Custom response handler for redirects
       onQueryStarted: async (arg, { queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
           if (data.auth_url) {
-            // Redirect to Google's OAuth screen
-            // Open in a new window/tab to avoid the disallowed_useragent error
-            // This forces the browser to use a standard user agent which Google accepts
-            window.open(data.auth_url, '_self');
+            // Open Google auth in a popup with proper dimensions
+            const width = 600;
+            const height = 700;
+            const left = window.screen.width / 2 - width / 2;
+            const top = window.screen.height / 2 - height / 2;
+            
+            console.log("Opening Google auth popup");
+            
+            // Open popup with fixed dimensions
+            const authWindow = window.open(
+              data.auth_url,
+              'GoogleAuth',
+              `width=${width},height=${height},top=${top},left=${left},menubar=no,toolbar=no,location=yes,status=yes`
+            );
+            
+            if (authWindow) {
+              authWindow.focus();
+            } else {
+              console.error("Failed to open popup window - it may have been blocked by the browser");
+              // Fallback to direct navigation if popup is blocked
+              window.location.href = data.auth_url;
+            }
           }
         } catch (err) {
           console.error('Google login initiation error:', err);
