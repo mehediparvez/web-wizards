@@ -105,7 +105,7 @@ jobs:
                 --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
                 --environment ${{ env.CONTAINER_ENV_NAME }} \
                 --image ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.OCR_SERVICE_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} \
-                --target-port 8000 \
+                --target-port 80 \
                 --ingress external \
                 --cpu 0.5 \
                 --memory 1.0Gi \
