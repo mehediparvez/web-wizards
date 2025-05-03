@@ -31,4 +31,5 @@ django-redis>=5.4.0
 gunicorn>=21.2.0  # For production WSGI server
 drf-yasg==1.21.7  # Swagger documentation generator
 Pillow>=10.0.0  # Required for image processing with Cloudinary
+setuptools>=69.0.0  # Required for pkg_resources used by drf-yasg
 
