@@ -14,6 +14,7 @@ logger.info("==== DEBUG: Environment Variables ====")
 logger.info(f"GEMINI_API_KEY exists: {'Yes' if 'GEMINI_API_KEY' in os.environ else 'No'}")
 logger.info(f"GEMINI_MODEL: {os.environ.get('GEMINI_MODEL', 'Not found')}")
 logger.info(f"DEBUG setting: {os.environ.get('DEBUG', 'Not found')}")
+logger.info(f"PORT setting: {os.environ.get('PORT', 'Not found')}")
 logger.info("==== End Environment Debug ====")
 
 # Import API endpoints
@@ -43,14 +44,19 @@ app.include_router(extraction_router, prefix=settings.API_PREFIX)
 
 @app.get("/")
 async def root():
+    logger.info("Root endpoint called")
     return {"status": "online", "service": settings.APP_NAME}
 
 @app.get("/health")
 async def health_check():
+    logger.info("Health check endpoint called")
     return {"status": "healthy"}
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8000))
+    # In Azure Container Apps, the container listens on port 80 by default
+    # The PORT environment variable should be set to 80 in the Azure Container App configuration
+    port = int(os.environ.get("PORT", 80))
+    logger.info(f"Starting server on port {port}")
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
 
