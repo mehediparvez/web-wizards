@@ -26,8 +26,16 @@ class GoogleLoginView(APIView):
         client_id = os.environ.get('GOOGLE_CLIENT_ID')
         scope = 'email profile openid'
         
-        # Build the Google authorization URL
-        auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&scope={scope}&redirect_uri={redirect_uri}&prompt=select_account"
+        # Build the Google authorization URL with additional parameters to avoid disallowed_useragent error
+        auth_url = (
+            f"https://accounts.google.com/o/oauth2/v2/auth"
+            f"?client_id={client_id}"
+            f"&response_type=code"
+            f"&scope={scope}"
+            f"&redirect_uri={redirect_uri}"
+            f"&prompt=consent"  # Always show consent screen
+            f"&access_type=offline"  # Get refresh token
+        )
         
         # Redirect the user to Google's authorization page
         return Response({"auth_url": auth_url}, status=status.HTTP_200_OK)

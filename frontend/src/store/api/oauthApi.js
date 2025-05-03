@@ -27,7 +27,9 @@ export const oauthApi = apiService.injectEndpoints({
           const { data } = await queryFulfilled;
           if (data.auth_url) {
             // Redirect to Google's OAuth screen
-            window.location.href = data.auth_url;
+            // Open in a new window/tab to avoid the disallowed_useragent error
+            // This forces the browser to use a standard user agent which Google accepts
+            window.open(data.auth_url, '_self');
           }
         } catch (err) {
           console.error('Google login initiation error:', err);
