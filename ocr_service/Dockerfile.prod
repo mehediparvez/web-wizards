@@ -54,8 +54,8 @@ COPY . .
 LABEL org.opencontainers.image.source=https://github.com/Learnathon-By-Geeky-Solutions/web-wizards
 LABEL org.opencontainers.image.description="Web Wizards OCR Service"
 
-# Expose the port the app runs on
-EXPOSE 8000
+# Expose the port the app runs on - changed to port 80 for Azure Container Apps
+EXPOSE 80
 
-# Run the application with uvicorn server for production
+# Run the application with uvicorn server for production - changed to port 80
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
