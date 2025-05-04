@@ -50,6 +50,9 @@ COPY . .
 # Set permissions
 RUN chmod +x /app/wait_for_db.py
 
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
 # Add GitHub Container Registry labels
 LABEL org.opencontainers.image.source=https://github.com/Learnathon-By-Geeky-Solutions/web-wizards
 LABEL org.opencontainers.image.description="Web Wizards Django Backend Service"
