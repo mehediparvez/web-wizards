@@ -36,6 +36,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_ENV=production
+ENV DEBUG=False
 
 # Install runtime dependencies
 RUN apt-get update && \
@@ -44,14 +45,17 @@ RUN apt-get update && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Create static directory
+RUN mkdir -p /app/static /app/staticfiles
+
 # Copy application code
 COPY . .
 
 # Set permissions
 RUN chmod +x /app/wait_for_db.py
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Remove the collectstatic command from here
+# We'll run it manually in the container console
 
 # Add GitHub Container Registry labels
 LABEL org.opencontainers.image.source=https://github.com/Learnathon-By-Geeky-Solutions/web-wizards
