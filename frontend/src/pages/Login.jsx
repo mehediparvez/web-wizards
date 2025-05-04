@@ -283,8 +283,6 @@ const Login = () => {
 
         {/* Footer */}
         <p className="text-center mt-6 text-xs text-gray-500">
-          Forgot your password?
-          <br />
           <a href="/terms" className="text-blue-500 hover:underline">
             Terms Of Use
           </a>{' '}
