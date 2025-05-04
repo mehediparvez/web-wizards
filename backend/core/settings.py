@@ -61,6 +61,10 @@ ALLOWED_HOSTS = [
     "web-wizards-backend.whitepebble-a989e7cd.southeastasia.azurecontainerapps.io"
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://web-wizards-backend.whitepebble-a989e7cd.southeastasia.azurecontainerapps.io",
+]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite development server
     "http://127.0.0.1:5173",
