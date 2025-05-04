@@ -36,6 +36,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_ENV=production
+ENV DEBUG=False
 
 # Install runtime dependencies
 RUN apt-get update && \
@@ -44,14 +45,17 @@ RUN apt-get update && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Create static directory
+RUN mkdir -p /app/static /app/staticfiles
+
 # Copy application code
 COPY . .
 
 # Set permissions
 RUN chmod +x /app/wait_for_db.py
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Collect static files with explicit settings
+RUN python manage.py collectstatic --noinput --clear
 
 # Add GitHub Container Registry labels
 LABEL org.opencontainers.image.source=https://github.com/Learnathon-By-Geeky-Solutions/web-wizards
@@ -60,5 +64,5 @@ LABEL org.opencontainers.image.description="Web Wizards Django Backend Service"
 # Expose the port the app runs on
 EXPOSE 8000
 
-# Run gunicorn server
+# Run gunicorn server with static file handling
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--threads", "4", "core.wsgi:application"]
