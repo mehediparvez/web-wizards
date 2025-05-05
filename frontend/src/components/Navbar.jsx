@@ -7,19 +7,10 @@ function Navbar() {
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
-          <div className="bg-green-800 rounded-full p-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="white"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="h-6 w-6"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
-            </svg>
-          </div>
-          <span className="text-green-800 text-xl font-semibold ml-2">Amarhealth</span>
+          <Link to="/" className="flex items-center">
+            <img src="/logo.png" alt="Amarhealth Logo" className="h-10 w-auto" />
+            <span className="text-green-800 text-xl font-semibold ml-2">Amarhealth</span>
+          </Link>
         </div>
 
         {/* Navigation Links */}
