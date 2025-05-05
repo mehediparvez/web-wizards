@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center">
         {/* Left Section */}
         <div className="text-center md:text-left">
-          <h2 className="text-lg font-semibold text-white">YourCompany</h2>
+          <h2 className="text-lg font-semibold text-white">AmarHealth</h2>
           <p className="mt-2">Providing reliable services since 2024.</p>
         </div>
 
@@ -37,7 +37,7 @@ const Footer = () => {
 
       {/* Copyright */}
       <div className="mt-6 text-center text-sm">
-        &copy; {new Date().getFullYear()} YourCompany. All rights reserved.
+        &copy; {new Date().getFullYear()} AmarHealth. All rights reserved.
       </div>
     </footer>
   );
