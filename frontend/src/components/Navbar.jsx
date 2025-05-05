@@ -9,7 +9,7 @@ function Navbar() {
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
             <img src="/logo.png" alt="Amarhealth Logo" className="h-10 w-auto" />
-            <span className="text-green-800 text-xl font-semibold ml-2">Amarhealth</span>
+            <span className="text-green-800 text-xl font-semibold ml-2">AmarHealth</span>
           </Link>
         </div>
 
