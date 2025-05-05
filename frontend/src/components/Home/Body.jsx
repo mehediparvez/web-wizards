@@ -10,11 +10,11 @@ const Body = () => {
           <h1 className="text-4xl font-bold leading-snug">
             Welcome to{" "}
             <span className="text-green-600 px-2 py-1 rounded-md">
-              AmerHealth
+              AmarHealth
             </span>
           </h1>
           <p className="mt-4 text-lg text-gray-700">
-            Free mobile app to manage medication plans, log health data, store
+            Free web app to manage medication plans, log health data, store
             medical documents, track symptoms, and share information with
             doctors for remote consultations. Stay updated with health advice
             and news.
