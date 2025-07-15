@@ -14,6 +14,7 @@ env:
   ORGANIZATION: learnathon-by-geeky-solutions # using lowercase for Docker compatibility
   BACKEND_IMAGE: web-wizards-backend
   OCR_SERVICE_IMAGE: web-wizards-ocr-service
+  CHATBOT_IMAGE: web-wizards-chatbot
 
 jobs:
   build-and-push:
@@ -71,6 +72,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and push chatbot image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./chatbot
+          file: ./chatbot/Dockerfile.prod
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.CHATBOT_IMAGE }}:${{ steps.set-tag.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.CHATBOT_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Create image tag artifact
         if: github.event_name != 'pull_request'
         run: |
@@ -92,6 +105,7 @@ jobs:
           echo "| --- | --- | --- | --- |" >> $GITHUB_STEP_SUMMARY
           echo "| Backend | ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.BACKEND_IMAGE }} | ${{ steps.set-tag.outputs.image_tag }}, latest | ✅ Built & Pushed |" >> $GITHUB_STEP_SUMMARY
           echo "| OCR Service | ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.OCR_SERVICE_IMAGE }} | ${{ steps.set-tag.outputs.image_tag }}, latest | ✅ Built & Pushed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Chatbot | ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.CHATBOT_IMAGE }} | ${{ steps.set-tag.outputs.image_tag }}, latest | ✅ Built & Pushed |" >> $GITHUB_STEP_SUMMARY
           
       - name: Add workflow run ID to step summary
         run: |

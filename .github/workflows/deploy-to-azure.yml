@@ -22,6 +22,7 @@ env:
   ORGANIZATION: learnathon-by-geeky-solutions
   BACKEND_IMAGE: web-wizards-backend
   OCR_SERVICE_IMAGE: web-wizards-ocr-service
+  CHATBOT_IMAGE: web-wizards-chatbot
   MYSQL_SERVER_NAME: webwizards-mysql
   MYSQL_DATABASE_NAME: webwizardsdb
   DATABASE_PORT: 3306
@@ -72,6 +73,7 @@ jobs:
           echo "Image tag to deploy: ${{ steps.set-image-tag.outputs.image_tag }}"
           echo "Full backend image URL: ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.BACKEND_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }}"
           echo "Full OCR service image URL: ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.OCR_SERVICE_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }}"
+          echo "Full chatbot image URL: ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.CHATBOT_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }}"
       
       # Backend Container App Update
       - name: Update Backend Container App
@@ -100,6 +102,40 @@ jobs:
               --image ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.OCR_SERVICE_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} || echo "Error updating OCR service container app"
             
             echo "OCR service container app update completed successfully"
+
+      # Chatbot Container App Update
+      - name: Update Chatbot Container App
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            echo "Updating chatbot container app with image tag: ${{ steps.set-image-tag.outputs.image_tag }}"
+            
+            # Check if chatbot container app exists, create if not
+            if ! az containerapp show --name chatbot-service --resource-group ${{ env.AZURE_RESOURCE_GROUP }} > /dev/null 2>&1; then
+              echo "Creating new chatbot container app..."
+              az containerapp create \
+                --name chatbot-service \
+                --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+                --environment ${{ env.CONTAINER_ENV_NAME }} \
+                --image ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.CHATBOT_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} \
+                --target-port 5000 \
+                --ingress external \
+                --query properties.configuration.ingress.fqdn \
+                --registry-server ${{ env.REGISTRY }} \
+                --registry-username ${{ github.actor }} \
+                --registry-password ${{ secrets.GHCR_PAT }} \
+                --env-vars "SECRET_KEY=secretref:secret-key" "FLASK_ENV=production" \
+                --cpu 0.5 --memory 1.0Gi \
+                --min-replicas 1 --max-replicas 3
+            else
+              echo "Updating existing chatbot container app..."
+              az containerapp update \
+                --name chatbot-service \
+                --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+                --image ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.CHATBOT_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }}
+            fi
+            
+            echo "Chatbot container app update completed successfully"
       
       - name: Get Backend URL
         id: get-backend-url
@@ -128,6 +164,20 @@ jobs:
             
             echo "ocr_url=https://$OCR_URL" >> $GITHUB_OUTPUT
             echo "OCR Service URL: https://$OCR_URL"
+
+      - name: Get Chatbot URL
+        id: get-chatbot-url
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            CHATBOT_URL=$(az containerapp show \
+              --name chatbot-service \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --query properties.configuration.ingress.fqdn \
+              --output tsv)
+            
+            echo "chatbot_url=https://$CHATBOT_URL" >> $GITHUB_OUTPUT
+            echo "Chatbot Service URL: https://$CHATBOT_URL"
       
       - name: Run Migrations
         uses: azure/CLI@v1
@@ -153,6 +203,11 @@ jobs:
               --name ocr-service \
               --resource-group ${{ env.AZURE_RESOURCE_GROUP }}
             
+            # Create a new revision to restart the chatbot app
+            az containerapp revision copy \
+              --name chatbot-service \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }}
+            
             echo "Container apps restarted with new revisions"
       
       - name: Deployment Summary
@@ -164,6 +219,9 @@ jobs:
           echo "| Admin Panel | ${{ steps.get-backend-url.outputs.backend_url }}/admin/ |" >> $GITHUB_STEP_SUMMARY
           echo "| OCR Service | ${{ steps.get-ocr-url.outputs.ocr_url }} |" >> $GITHUB_STEP_SUMMARY
           echo "| OCR API Docs | ${{ steps.get-ocr-url.outputs.ocr_url }}/docs/ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Chatbot Service | ${{ steps.get-chatbot-url.outputs.chatbot_url }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Chatbot Health | ${{ steps.get-chatbot-url.outputs.chatbot_url }}/health |" >> $GITHUB_STEP_SUMMARY
           echo "| Images Deployed |" >> $GITHUB_STEP_SUMMARY
           echo "| - Backend: ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.BACKEND_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} |" >> $GITHUB_STEP_SUMMARY
           echo "| - OCR Service: ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.OCR_SERVICE_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| - Chatbot: ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.CHATBOT_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} |" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,43 @@
+name: Deploy Chatbot to Azure Container Instances
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'chatbot/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Build and push image to ACR
+      run: |
+        cd chatbot
+        az acr build --registry chatbotregistry --image medical-chatbot:${{ github.sha }} .
+        az acr build --registry chatbotregistry --image medical-chatbot:latest .
+    
+    - name: Deploy to Azure Container Instances
+      run: |
+        az container create \
+          --resource-group chatbot-rg \
+          --name medical-chatbot-container \
+          --image chatbotregistry.azurecr.io/medical-chatbot:latest \
+          --registry-login-server chatbotregistry.azurecr.io \
+          --registry-username chatbotregistry \
+          --registry-password $(az acr credential show --name chatbotregistry --query "passwords[0].value" --output tsv) \
+          --dns-name-label medical-chatbot-service \
+          --ports 5000 \
+          --environment-variables SECRET_KEY="${{ secrets.SECRET_KEY }}" FLASK_ENV=production \
+          --cpu 1 \
+          --memory 2 \
+          --restart-policy Always
