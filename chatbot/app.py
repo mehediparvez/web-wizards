@@ -18,13 +18,25 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
-# CORS configuration
-CORS(app, origins=["http://localhost:5173", "http://frontend:5173"])
+# CORS configuration - Allow both local development and production origins
+allowed_origins = [
+    "http://localhost:5173",
+    "http://frontend:5173",
+    "https://your-vercel-app.vercel.app",  # Replace with your actual Vercel domain
+    "https://your-custom-domain.com"  # Add your custom domain if you have one
+]
+
+# Get allowed origins from environment variable if set
+env_origins = os.environ.get('ALLOWED_ORIGINS', '').split(',')
+if env_origins and env_origins[0]:  # Check if not empty
+    allowed_origins.extend([origin.strip() for origin in env_origins if origin.strip()])
+
+CORS(app, origins=allowed_origins)
 
 # SocketIO configuration
 socketio = SocketIO(
     app, 
-    cors_allowed_origins=["http://localhost:5173", "http://frontend:5173"],
+    cors_allowed_origins=allowed_origins,
     logger=True,
     engineio_logger=True
 )
