@@ -16,8 +16,15 @@ class SocketService {
     
     this.socket = io(url, {
       autoConnect: false,
-      timeout: 10000,
+      timeout: 20000,
       transports: ['websocket', 'polling'],
+      forceNew: true,
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      maxReconnectionAttempts: 5,
+      upgrade: true,
+      rememberUpgrade: true
     });
 
     this.socket.on('connect', () => {
@@ -32,6 +39,28 @@ class SocketService {
 
     this.socket.on('connect_error', (error) => {
       console.error('Chatbot socket connection error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        description: error.description,
+        context: error.context,
+        type: error.type
+      });
+    });
+
+    this.socket.on('error', (error) => {
+      console.error('Socket error:', error);
+    });
+
+    this.socket.on('reconnect', (attemptNumber) => {
+      console.log('Reconnected to chatbot socket server after', attemptNumber, 'attempts');
+    });
+
+    this.socket.on('reconnect_error', (error) => {
+      console.error('Reconnection error:', error);
+    });
+
+    this.socket.on('reconnect_failed', () => {
+      console.error('Failed to reconnect to chatbot socket server');
     });
 
     this.socket.connect();

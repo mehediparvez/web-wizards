@@ -27,6 +27,13 @@ const ChatbotPage = () => {
     if (useWebSocket) {
       const chatbotUrl = import.meta.env.VITE_CHATBOT_API_URL || 'http://localhost:5000';
       
+      console.log('Chatbot URL from environment:', chatbotUrl);
+      console.log('Environment variables:', {
+        VITE_CHATBOT_API_URL: import.meta.env.VITE_CHATBOT_API_URL,
+        NODE_ENV: import.meta.env.NODE_ENV,
+        MODE: import.meta.env.MODE
+      });
+      
       try {
         socketService.connect(chatbotUrl);
         setConnectionStatus('connecting');
@@ -64,6 +71,10 @@ const ChatbotPage = () => {
           const connected = socketService.isSocketConnected();
           setIsConnected(connected);
           setConnectionStatus(connected ? 'connected' : 'disconnected');
+          
+          if (!connected) {
+            console.log('Socket connection status check failed');
+          }
         };
 
         const intervalId = setInterval(checkConnection, 2000);
