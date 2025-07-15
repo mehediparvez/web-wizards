@@ -211,7 +211,21 @@ def get_fallback_prediction(patient_symptoms):
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    return jsonify({"status": "healthy", "service": "chatbot"}), 200
+    return jsonify({
+        "status": "healthy", 
+        "service": "chatbot",
+        "allowed_origins": allowed_origins,
+        "model_loaded": model_loaded
+    }), 200
+
+@app.route('/test', methods=['GET'])
+def test_endpoint():
+    """Test endpoint for debugging"""
+    return jsonify({
+        "message": "Chatbot service is running",
+        "timestamp": time.time(),
+        "cors_origins": allowed_origins
+    }), 200
 
 @app.route('/api/symptoms', methods=['GET'])
 def get_symptoms():
@@ -489,4 +503,16 @@ def process_chat_message(message_text):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+    debug = os.environ.get('FLASK_ENV', 'development') == 'development'
+    
+    logger.info(f"Starting chatbot service on port {port}")
+    logger.info(f"Debug mode: {debug}")
+    logger.info(f"Allowed origins: {allowed_origins}")
+    
+    socketio.run(
+        app, 
+        host='0.0.0.0', 
+        port=port, 
+        debug=debug,
+        allow_unsafe_werkzeug=True  # For production deployment
+    )

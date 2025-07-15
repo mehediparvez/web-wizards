@@ -14,7 +14,9 @@ class SocketService {
 
     console.log('Connecting to chatbot socket server:', url);
     
-    this.socket = io(url, {
+    // Configure socket options based on protocol
+    const isSecure = url.startsWith('https://');
+    const socketOptions = {
       autoConnect: false,
       timeout: 20000,
       transports: ['websocket', 'polling'],
@@ -22,10 +24,23 @@ class SocketService {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
-      maxReconnectionAttempts: 5,
+      maxReconnectionAttempts: 3,
       upgrade: true,
-      rememberUpgrade: true
-    });
+      rememberUpgrade: true,
+      // For HTTPS connections, ensure proper configuration
+      secure: isSecure,
+      rejectUnauthorized: false, // For development/testing - adjust for production
+      // Try polling first for better compatibility with Azure Container Apps
+      transportOptions: {
+        polling: {
+          extraHeaders: {
+            'Origin': window.location.origin
+          }
+        }
+      }
+    };
+
+    this.socket = io(url, socketOptions);
 
     this.socket.on('connect', () => {
       console.log('Connected to chatbot socket server');

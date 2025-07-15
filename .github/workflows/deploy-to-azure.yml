@@ -115,7 +115,10 @@ jobs:
               --name chatbot-service \
               --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
               --image ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.CHATBOT_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} \
-              --set-env-vars "SECRET_KEY=django-insecure-chatbot-production-key" "FLASK_ENV=production" "PORT=5000" "ALLOWED_ORIGINS=https://webwizardsfrontend.vercel.app,https://amarhealth.tech"
+              --set-env-vars "SECRET_KEY=django-insecure-chatbot-production-key" "FLASK_ENV=production" "PORT=5000" "ALLOWED_ORIGINS=https://webwizardsfrontend.vercel.app,https://amarhealth.tech" \
+              --ingress external \
+              --target-port 5000 \
+              --transport auto
             
             echo "Chatbot container app update completed successfully"
       

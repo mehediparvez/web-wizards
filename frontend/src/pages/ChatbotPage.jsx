@@ -62,11 +62,13 @@ const ChatbotPage = () => {
 
         socketService.onError((errorData) => {
           console.error('Socket error:', errorData);
-          setError(errorData.error || 'Connection error occurred');
+          console.log('WebSocket failed, falling back to REST API');
+          setUseWebSocket(false); // Auto-fallback to REST API
+          setError(null); // Clear error since we're falling back
           setIsTyping(false);
         });
 
-        // Check connection status
+        // Check connection status with auto-fallback
         const checkConnection = () => {
           const connected = socketService.isSocketConnected();
           setIsConnected(connected);
@@ -79,14 +81,26 @@ const ChatbotPage = () => {
 
         const intervalId = setInterval(checkConnection, 2000);
         
+        // Auto-fallback timeout - if not connected within 10 seconds, switch to REST
+        const fallbackTimeout = setTimeout(() => {
+          if (!socketService.isSocketConnected()) {
+            console.log('WebSocket connection timeout, falling back to REST API');
+            setUseWebSocket(false);
+            setError(null);
+          }
+        }, 10000);
+        
         return () => {
           clearInterval(intervalId);
+          clearTimeout(fallbackTimeout);
           socketService.removeListeners();
           socketService.disconnect();
         };
       } catch (error) {
         console.error('Failed to connect to chatbot:', error);
-        setError('Failed to connect to chatbot service');
+        console.log('WebSocket initialization failed, falling back to REST API');
+        setUseWebSocket(false);
+        setError(null);
         setConnectionStatus('error');
       }
     }
@@ -233,9 +247,12 @@ const ChatbotPage = () => {
   };
 
   const getConnectionText = () => {
+    if (!useWebSocket) {
+      return 'REST API';
+    }
     switch (connectionStatus) {
       case 'connected':
-        return 'Connected';
+        return 'WebSocket Connected';
       case 'connecting':
         return 'Connecting...';
       case 'error':
