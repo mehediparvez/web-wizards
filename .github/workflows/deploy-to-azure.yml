@@ -120,11 +120,10 @@ jobs:
                 --image ${{ env.REGISTRY }}/${{ env.ORGANIZATION }}/${{ env.CHATBOT_IMAGE }}:${{ steps.set-image-tag.outputs.image_tag }} \
                 --target-port 5000 \
                 --ingress external \
-                --query properties.configuration.ingress.fqdn \
                 --registry-server ${{ env.REGISTRY }} \
                 --registry-username ${{ github.actor }} \
                 --registry-password ${{ secrets.GHCR_PAT }} \
-                --env-vars "SECRET_KEY=secretref:secret-key" "FLASK_ENV=production" \
+                --env-vars "SECRET_KEY=django-insecure-chatbot-production-key" "FLASK_ENV=production" \
                 --cpu 0.5 --memory 1.0Gi \
                 --min-replicas 1 --max-replicas 3
             else
