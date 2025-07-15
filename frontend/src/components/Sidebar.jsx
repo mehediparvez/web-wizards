@@ -8,6 +8,7 @@ import {
   CalendarIcon,
   Cog6ToothIcon,
   BeakerIcon,
+  ChatBubbleLeftEllipsisIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 
@@ -19,6 +20,7 @@ function Sidebar({ onClose, isLargeScreen }) {
     { name: 'Medical Record', icon: ClipboardDocumentIcon, path: '/medicalrecord' },
     { name: 'Health Issues', icon: HeartIcon, path: '/healthissues' },
     { name: 'Medications', icon: BeakerIcon, path: '/medication' },
+    { name: 'AI Assistant', icon: ChatBubbleLeftEllipsisIcon, path: '/chatbot' },
     { name: 'Clinicians', icon: UserGroupIcon, path: '/clinicians' },
     { name: 'Appointments', icon: CalendarIcon, path: '/appointments' },
     { name: 'Settings', icon: Cog6ToothIcon, path: '/settings' },

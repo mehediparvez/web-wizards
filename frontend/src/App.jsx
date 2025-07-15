@@ -27,6 +27,7 @@ const HealthIssues = lazy(() => import('./pages/HealthIssues'));
 const HealthIssueDetail = lazy(() => import('./pages/HealthIssueDetail'));
 const HealthIssueFormPage = lazy(() => import('./pages/HealthIssueFormPage'));
 const Chat = lazy(() => import('./pages/Chat'));
+const ChatbotPage = lazy(() => import('./pages/ChatbotPage'));
 const Appointments = lazy(() => import('./pages/Appointments'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
@@ -258,6 +259,14 @@ const router = createBrowserRouter([
     element: <PrivateRoute element={
       <Suspense fallback={<PageLoading />}>
         <Chat />
+      </Suspense>
+    } />,
+  },
+  {
+    path: "/chatbot",
+    element: <PrivateRoute element={
+      <Suspense fallback={<PageLoading />}>
+        <ChatbotPage />
       </Suspense>
     } />,
   },

@@ -29,6 +29,12 @@ The application is built with a modern tech stack and follows a microservices ar
 - **FastAPI**: High-performance OCR and document processing service
 - **AI Processing**: Integration with OpenAI/Gemini models for medical document analysis
 
+### Chatbot Service
+- **Flask + SocketIO**: Real-time medical AI assistant
+- **Machine Learning**: Symptom analysis and disease prediction
+- **WebSocket Support**: Real-time chat functionality
+- **REST API**: HTTP-based chat interactions
+
 ### DevOps
 - **Docker & Docker Compose**: Containerization
 - **Azure Container Apps**: Cloud deployment platform
@@ -67,6 +73,13 @@ The application is built with a modern tech stack and follows a microservices ar
 - Parameter classification and abnormality detection
 - Trend analysis and visualization
 
+### AI Medical Assistant
+- **Real-time Chat**: Interactive medical consultation with AI
+- **Symptom Analysis**: Intelligent symptom-to-disease prediction
+- **Health Guidance**: Personalized health recommendations
+- **Multi-format Support**: Both text input and structured symptom selection
+- **WebSocket Integration**: Real-time messaging with typing indicators
+
 ## Getting Started
 1. Clone the repository
    ```bash
@@ -87,16 +100,35 @@ The application is built with a modern tech stack and follows a microservices ar
    # OCR Service
    cd ../ocr_service
    pip install -r requirements.txt
+   
+   # Chatbot Service
+   cd ../chatbot
+   pip install -r requirements.txt
    ```
 
 3. Set Up Environment Variables
-   - Create `.env` files for each service based on the provided examples
+   - Create `.env` file in the root directory based on `.env.example`
+   - Configure API URLs and service endpoints
 
 4. Start Development Servers
    ```bash
-   # Using Docker Compose
-   docker-compose -f docker-compose.dev.yml up
+   # Using Docker Compose (Recommended)
+   docker-compose up
+   
+   # This will start:
+   # - Frontend (React): http://localhost:5173
+   # - Backend (Django): http://localhost:8000
+   # - OCR Service (FastAPI): http://localhost:8001
+   # - Chatbot Service (Flask): http://localhost:5000
+   # - Database (MySQL): localhost:3306
    ```
+
+## Service Endpoints
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+- **OCR Service**: http://localhost:8001
+- **Chatbot Service**: http://localhost:5000
+- **Database**: localhost:3306
 
 ## Development Guidelines
 1. Create feature branches from the `develop` branch

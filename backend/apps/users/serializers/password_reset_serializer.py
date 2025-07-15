@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from ..models.user import Users
+from django.contrib.auth import get_user_model
 import secrets
 import string
 
+Users = get_user_model()
 
 class ForgotPasswordSerializer(serializers.Serializer):
     """
